@@ -1,0 +1,7 @@
+Metadata-Version: 2.1
+Name: learnable-wavelets
+Version: 0.0.1
+Summary: Scattering network for camels simulations
+Home-page: https://github.com/Chris-Pedersen/LearnableWavelets
+Author: Chris Pedersen
+Author-email: c.pedersen@nyu.edu

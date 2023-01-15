@@ -1,0 +1,18 @@
+name: wavelet
+channels:
+  - pytorch
+  - bioconda
+  - conda-forge
+  - defaults
+dependencies:
+  - python=3.9
+  - matplotlib
+  - scipy
+  - ipykernel
+  - pytorch
+  - torchvision
+  - pip
+  - pip:
+    - wandb
+    - optuna
+    - numpy

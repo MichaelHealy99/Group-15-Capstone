@@ -1,0 +1,7 @@
+matplotlib
+scipy
+ipykernel
+torchvision
+wandb
+optuna
+numpy
