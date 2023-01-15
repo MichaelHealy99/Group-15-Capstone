@@ -1,0 +1,96 @@
+mkdir /scratch/$USER/my_env
+cd /scratch/$USER/my_env
+cp -rp /scratch/work/public/overlay-fs-ext3/overlay-50G-10M.ext3.gz .
+gunzip overlay-50G-10M.ext3.gz
+
+singularity exec --overlay /scratch/$USER/my_env/overlay-50G-10M.ext3:rw /scratch/work/public/singularity/cuda11.6.124-cudnn8.4.0.27-devel-ubuntu20.04.4.sif /bin/bash
+
+wget https://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh
+sh Miniconda3-latest-Linux-x86_64.sh -b -p /ext3/miniconda3
+
+vim /ext3/env.sh
+
+#paste in vim stuff between curly brackets, NOT INCLUDING BRACKETS:
+{
+#!/bin/bash
+
+source /ext3/miniconda3/etc/profile.d/conda.sh
+export PATH=/ext3/miniconda3/bin:$PATH
+export PYTHONPATH=/ext3/miniconda3/bin:$PATH
+}
+#press escape, then do :x then hit enter
+
+source /ext3/env.sh
+
+conda activate
+
+conda update -n base conda -y
+conda clean --all --yes
+conda install pip
+conda install ipykernel
+
+#installing learnable wavelets stuff
+
+git clone https://github.com/Chris-Pedersen/LearnableWavelets
+
+cd LearnableWavelets
+
+#Put requirements.txt in LearnableWavelets, with drag and dropping in VSCode or any other software
+
+wget -O test_data/maps_Mtot_1k.npy "https://www.dropbox.com/s/oqy3h3l4cdgfdeq/maps_Mtot_1k.npy?dl=0"
+
+conda install pytorch torchvision torchaudio pytorch-cuda=11.6 -c pytorch -c nvidia
+
+pip install -r requirements.txt
+
+pip install .
+
+#Now installing maxvit stuff
+
+cd ..
+
+git clone https://github.com/ChristophReich1996/MaxViT
+
+cd MaxViT
+
+pip install .
+
+conda install tensorflow
+
+pip install tensorflow_dataset
+
+
+exit
+
+#After you type exit, hit enter. Should leave singularity 
+#***Can't open ood session and use correct kernel if singularity is still running in some terminal*******
+
+mkdir -p ~/.local/share/jupyter/kernels
+cd ~/.local/share/jupyter/kernels
+cp -R /share/apps/mypy/src/kernel_template ./my_env # this should be the name of your Singularity env
+cd ./my_env 
+
+#paste next lines into the bottom of the 'python' file (literally just called 'python') in .local/share in home directory instead of what's there
+
+singularity exec $nv \
+  --overlay /scratch/mbh425/my_env/overlay-50G-10M.ext3:ro \
+  /scratch/work/public/singularity/cuda11.6.124-cudnn8.4.0.27-devel-ubuntu20.04.4.sif \
+  /bin/bash -c "source /ext3/env.sh; $cmd $args"
+
+
+#Edit kernel.json to have /home/NetID/.local/share/jupyter/kernels/my_env/python instead of PYTHON_LOCATION
+	#Change NetID to your own
+	#Change KERNEL_DISPLAY_NAME to my_env
+
+#save previous files
+
+#***Make sure to exit all other instances of my_env
+
+#open ood <https://ood.hpc.nyu.edu/pun/sys/dashboard>
+#request gpu session with like 32GB or more memory; choose any GPU type just not 'none'; make root directory SCRATCH
+#open example_notebook.ipynb
+#select my_env as the environment
+#Run all cells; some warnings may come up, but that's fine as long as the cell actually runs
+
+
+
